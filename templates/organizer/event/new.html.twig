@@ -1,0 +1,59 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Create Event{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Organizer</span>
+            <h1 class="display-6 fw-bold mt-2">Create event</h1>
+            <p class="eh-muted mb-0">Fill in the details to draft a new event.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('organizer_event_index') }}">Back to list</a>
+        </div>
+    </div>
+
+    <div class="card eh-card">
+        <div class="card-body">
+            {{ form_start(form, { attr: { class: 'row g-3' } }) }}
+                <div class="col-12">
+                    {{ form_row(form.title, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12">
+                    {{ form_row(form.description, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input', rows: 4 } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.location, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.organization, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-select eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.startDate, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.endDate, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.type, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-select eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.mode, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-select eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.capacity, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12">
+                    {{ form_row(form.detailedReport, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input', rows: 4 } }) }}
+                </div>
+                <div class="col-12 d-flex flex-wrap gap-2">
+                    <button class="btn btn-eh-primary" type="submit">Save draft</button>
+                    <a class="btn btn-outline-secondary" href="{{ path('organizer_event_index') }}">Cancel</a>
+                </div>
+            {{ form_end(form) }}
+        </div>
+    </div>
+</div>
+{% endblock %}

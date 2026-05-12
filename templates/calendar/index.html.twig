@@ -1,0 +1,117 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendar{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Calendar</span>
+            <h1 class="display-6 fw-bold mt-2">{{ monthName }} {{ year }}</h1>
+            <p class="eh-muted mb-0">Browse events by day and filter by type or status.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: prevYear, month: prevMonth, type: filterType, status: filterStatus }) }}">Prev</a>
+            <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: nextYear, month: nextMonth, type: filterType, status: filterStatus }) }}">Next</a>
+            <a class="btn btn-eh-primary" href="{{ path('calendar_list', { type: filterType, status: filterStatus }) }}">List view</a>
+        </div>
+    </div>
+
+    <form class="row g-3 align-items-end mb-4" method="get" action="{{ path('calendar_index') }}">
+        <input type="hidden" name="year" value="{{ year }}">
+        <input type="hidden" name="month" value="{{ month }}">
+        <div class="col-12 col-md-4">
+            <label class="form-label eh-muted">Event type</label>
+            <select name="type" class="form-select eh-input">
+                <option value="">All types</option>
+                {% for key, label in eventTypes %}
+                    <option value="{{ key }}" {{ key == filterType ? 'selected' : '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label eh-muted">Status</label>
+            <select name="status" class="form-select eh-input">
+                <option value="">All statuses</option>
+                {% for key, label in eventStatuses %}
+                    <option value="{{ key }}" {{ key == filterStatus ? 'selected' : '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button class="btn btn-eh-primary w-100" type="submit">Apply filters</button>
+            <a class="btn btn-outline-secondary w-100" href="{{ path('calendar_index') }}">Reset</a>
+        </div>
+    </form>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-8">
+            <div class="card eh-card">
+                <div class="card-body">
+                    <div class="calendar-grid mb-2">
+                        {% set weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] %}
+                        {% for day in weekDays %}
+                            <div class="calendar-header">{{ day }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="calendar-grid">
+                        {% for cell in calendar %}
+                            {% if cell.day is null %}
+                                <div class="calendar-empty"></div>
+                            {% else %}
+                                <div class="calendar-day {{ cell.isToday ? 'is-today' : '' }}">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <span class="fw-semibold">{{ cell.day }}</span>
+                                        {% if cell.isToday %}
+                                            <span class="badge text-bg-danger">Today</span>
+                                        {% endif %}
+                                    </div>
+                                    <div class="calendar-events d-grid gap-1 mt-2">
+                                        {% if cell.events is empty %}
+                                            <span class="small eh-muted">No events</span>
+                                        {% else %}
+                                            {% for event in cell.events|slice(0, 2) %}
+                                                <a class="small text-decoration-none text-primary" href="{{ path('event_show', { id: event.id }) }}">
+                                                    • {{ event.title|slice(0, 22) }}{% if event.title|length > 22 %}…{% endif %}
+                                                </a>
+                                            {% endfor %}
+                                            {% if cell.events|length > 2 %}
+                                                <span class="small eh-muted">+{{ cell.events|length - 2 }} more</span>
+                                            {% endif %}
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-xl-4">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Upcoming events</h2>
+                    {% if upcoming is empty %}
+                        <p class="eh-muted mb-0">No upcoming events found.</p>
+                    {% else %}
+                        <div class="d-grid gap-3">
+                            {% for event in upcoming|slice(0, 6) %}
+                                <div class="border eh-border rounded p-3">
+                                    <div class="d-flex align-items-center justify-content-between">
+                                        <h3 class="h6 fw-bold mb-0">{{ event.title }}</h3>
+                                        <span class="badge eh-badge">{{ event.type }}</span>
+                                    </div>
+                                    <p class="eh-muted small mb-2">{{ event.startDate|date('M d, Y') }} - {{ event.endDate|date('M d, Y') }}</p>
+                                    <a class="eh-link small" href="{{ path('event_show', { id: event.id }) }}">View details</a>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

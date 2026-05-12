@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Events{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Events</span>
+            <h1 class="display-6 fw-bold mt-2">Approved events</h1>
+            <p class="eh-muted mb-0">Browse upcoming public events and register.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a href="{{ path('calendar_index') }}" class="btn btn-outline-secondary">Calendar view</a>
+        </div>
+    </div>
+
+    {% if events is empty %}
+        <div class="card eh-card text-center">
+            <div class="card-body py-5">
+                <h2 class="h5 fw-bold mb-2">No approved events yet</h2>
+                <p class="eh-muted mb-0">Check back later for new events.</p>
+            </div>
+        </div>
+    {% else %}
+        <div class="row g-4">
+            {% for event in events %}
+                <div class="col-12 col-md-6 col-xl-4">
+                    <div class="card eh-card h-100">
+                        <div class="card-body d-flex flex-column">
+                            <div class="d-flex align-items-start justify-content-between gap-3 mb-3">
+                                <h2 class="h5 fw-bold mb-0">{{ event.title }}</h2>
+                                <span class="badge text-bg-success">{{ event.type }}</span>
+                            </div>
+                            <p class="eh-muted small mb-3">{{ event.description }}</p>
+                            <div class="mb-3">
+                                <div class="d-flex justify-content-between small">
+                                    <span class="eh-muted">Start</span>
+                                    <span>{{ event.startDate|date('M j, Y H:i') }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span class="eh-muted">Location</span>
+                                    <span class="text-end">{{ event.location }}</span>
+                                </div>
+                                <div class="d-flex justify-content-between small">
+                                    <span class="eh-muted">Mode</span>
+                                    <span>{{ event.mode }}</span>
+                                </div>
+                            </div>
+                            <a href="{{ path('event_show', {'id': event.id}) }}" class="btn btn-outline-secondary mt-auto">View details</a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

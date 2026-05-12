@@ -1,0 +1,50 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}QR Scan{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Staff</span>
+            <h1 class="display-6 fw-bold mt-2">QR scan</h1>
+            <p class="eh-muted mb-0">Validate registrations and check attendees in.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('staff_scan') }}">Refresh</a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Validate QR code</h2>
+                    <form method="post" action="{{ path('staff_scan_validate') }}">
+                        <div class="mb-3">
+                            <label class="form-label eh-muted" for="qrCode">QR code value</label>
+                            <input class="form-control eh-input" id="qrCode" name="qr_code" placeholder="Paste QR code text" required>
+                        </div>
+                        <button class="btn btn-eh-primary" type="submit">Validate</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Check-in attendee</h2>
+                    <form method="post" action="{{ path('staff_scan_checkin') }}">
+                        <div class="mb-3">
+                            <label class="form-label eh-muted" for="registrationId">Registration ID</label>
+                            <input class="form-control eh-input" id="registrationId" name="registration_id" placeholder="Registration ID" required>
+                        </div>
+                        <button class="btn btn-eh-accent" type="submit">Confirm check-in</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

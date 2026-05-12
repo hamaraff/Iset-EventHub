@@ -1,0 +1,97 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Calendar List{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Calendar</span>
+            <h1 class="display-6 fw-bold mt-2">Event list</h1>
+            <p class="eh-muted mb-0">Filter and browse upcoming events.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { type: filterType, status: filterStatus }) }}">Calendar view</a>
+            <a class="btn btn-eh-primary" href="{{ path('event_list') }}">All events</a>
+        </div>
+    </div>
+
+    <form class="row g-3 align-items-end mb-4" method="get" action="{{ path('calendar_list') }}">
+        <div class="col-12 col-md-3">
+            <label class="form-label eh-muted">From</label>
+            <input type="date" name="from" value="{{ dateFrom }}" class="form-control eh-input">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label eh-muted">To</label>
+            <input type="date" name="to" value="{{ dateTo }}" class="form-control eh-input">
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label eh-muted">Type</label>
+            <select name="type" class="form-select eh-input">
+                <option value="">All types</option>
+                {% for key, label in eventTypes %}
+                    <option value="{{ key }}" {{ key == filterType ? 'selected' : '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label eh-muted">Status</label>
+            <select name="status" class="form-select eh-input">
+                <option value="">All statuses</option>
+                {% for key, label in eventStatuses %}
+                    <option value="{{ key }}" {{ key == filterStatus ? 'selected' : '' }}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-12 col-md-4 d-flex gap-2">
+            <button class="btn btn-eh-primary w-100" type="submit">Apply filters</button>
+            <a class="btn btn-outline-secondary w-100" href="{{ path('calendar_list') }}">Reset</a>
+        </div>
+    </form>
+
+    <div class="card eh-card">
+        <div class="card-body">
+            {% if events is empty %}
+                <p class="eh-muted mb-0">No events found for the selected filters.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 eh-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Dates</th>
+                                <th>Status</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ event.title }}</div>
+                                        <div class="small eh-muted">{{ event.location ?? 'TBD' }}</div>
+                                    </td>
+                                    <td>
+                                        <div>{{ event.startDate|date('M d, Y') }}</div>
+                                        <div class="small eh-muted">to {{ event.endDate|date('M d, Y') }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge eh-badge">{{ event.status }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ event.type }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('event_show', { id: event.id }) }}">View</a>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

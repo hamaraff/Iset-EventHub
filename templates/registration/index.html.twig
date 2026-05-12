@@ -1,0 +1,67 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Registrations{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Registrations</span>
+            <h1 class="display-6 fw-bold mt-2">My registrations</h1>
+            <p class="eh-muted mb-0">Track your active and past event registrations.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('event_list') }}">Explore events</a>
+        </div>
+    </div>
+
+    <div class="card eh-card">
+        <div class="card-body">
+            {% if registrations is empty %}
+                <p class="eh-muted mb-0">You have not registered for any events yet.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 eh-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Type</th>
+                                <th>Status</th>
+                                <th>Registered</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for registration in registrations %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ registration.event.title }}</div>
+                                        <div class="small eh-muted">{{ registration.event.startDate|date('M d, Y') }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="badge bg-secondary">{{ registration.type }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="badge eh-badge">{{ registration.status }}</span>
+                                    </td>
+                                    <td>
+                                        <span class="eh-muted">{{ registration.createdAt|date('M d, Y') }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('event_show', { id: registration.event.id }) }}">View event</a>
+                                        {% if is_granted('REGISTRATION_CANCEL', registration) %}
+                                            <form method="post" action="{{ path('registration_cancel', { id: registration.id }) }}" class="d-inline">
+                                                <button class="btn btn-sm btn-outline-danger" type="submit">Cancel</button>
+                                            </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

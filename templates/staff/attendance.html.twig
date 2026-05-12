@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Attendance{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Attendance</span>
+            <h1 class="display-6 fw-bold mt-2">{{ event.title }}</h1>
+            <p class="eh-muted mb-0">Track checked-in and confirmed registrations.</p>
+        </div>
+        <div class="d-flex gap-2">
+            <a class="btn btn-outline-secondary" href="{{ path('staff_scan') }}">Back to scan</a>
+            <a class="btn btn-eh-primary" href="{{ path('event_show', { id: event.id }) }}">Event details</a>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Total registered</p>
+                    <h2 class="fw-bold mb-0">{{ totalRegistered }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Checked in</p>
+                    <h2 class="fw-bold mb-0">{{ totalCheckedIn }}</h2>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Confirmed</p>
+                    <h2 class="fw-bold mb-0">{{ confirmed|length }}</h2>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Checked-in attendees</h2>
+                    {% if checkedIn is empty %}
+                        <p class="eh-muted mb-0">No one has checked in yet.</p>
+                    {% else %}
+                        <div class="list-group list-group-flush">
+                            {% for registration in checkedIn %}
+                                <div class="list-group-item bg-transparent border-0 border-bottom eh-border d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-semibold">{{ registration.user.name }}</div>
+                                        <div class="small eh-muted">{{ registration.user.email }}</div>
+                                    </div>
+                                    <span class="badge bg-success">Checked in</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12 col-lg-6">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Confirmed registrations</h2>
+                    {% if confirmed is empty %}
+                        <p class="eh-muted mb-0">No confirmed registrations yet.</p>
+                    {% else %}
+                        <div class="list-group list-group-flush">
+                            {% for registration in confirmed %}
+                                <div class="list-group-item bg-transparent border-0 border-bottom eh-border d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <div class="fw-semibold">{{ registration.user.name }}</div>
+                                        <div class="small eh-muted">{{ registration.user.email }}</div>
+                                    </div>
+                                    <span class="badge eh-badge">Confirmed</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

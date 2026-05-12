@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Pending Events{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Admin</span>
+            <h1 class="display-6 fw-bold mt-2">Pending events</h1>
+            <p class="eh-muted mb-0">Review and approve or refuse pending submissions.</p>
+        </div>
+    </div>
+
+    <div class="card eh-card">
+        <div class="card-body">
+            {% if events is empty %}
+                <p class="eh-muted mb-0">No pending events right now.</p>
+            {% else %}
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0 eh-table">
+                        <thead>
+                            <tr>
+                                <th>Event</th>
+                                <th>Organization</th>
+                                <th>Dates</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for event in events %}
+                                <tr>
+                                    <td>
+                                        <div class="fw-semibold">{{ event.title }}</div>
+                                        <div class="small eh-muted">{{ event.location ?? 'TBD' }}</div>
+                                    </td>
+                                    <td>{{ event.organization.name }}</td>
+                                    <td>
+                                        <div>{{ event.startDate|date('M d, Y H:i') }}</div>
+                                        <div class="small eh-muted">to {{ event.endDate|date('M d, Y H:i') }}</div>
+                                    </td>
+                                    <td class="text-end">
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ path('event_show', { id: event.id }) }}">View</a>
+                                        <form method="post" action="{{ path('admin_event_approve', { id: event.id }) }}" class="d-inline">
+                                            <button class="btn btn-sm btn-outline-success" type="submit">Approve</button>
+                                        </form>
+                                        <form method="post" action="{{ path('admin_event_refuse', { id: event.id }) }}" class="d-inline">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">Refuse</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

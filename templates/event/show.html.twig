@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ event.title }}{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="mb-3">
+        <a href="{{ path('event_list') }}" class="btn btn-outline-secondary btn-sm">Back to events</a>
+    </div>
+
+    <div class="card eh-card">
+        <div class="card-body border-bottom eh-border">
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="badge text-bg-info">{{ event.status }}</span>
+                <span class="badge text-bg-primary">{{ event.type }}</span>
+                <span class="badge text-bg-secondary">{{ event.mode }}</span>
+            </div>
+            <h1 class="display-6 fw-bold mb-2">{{ event.title }}</h1>
+            <p class="eh-muted mb-0">{{ event.description }}</p>
+        </div>
+
+        <div class="card-body">
+            <div class="row g-4">
+                <div class="col-12 col-lg-8">
+                    <h2 class="h5 fw-bold mb-3">Details</h2>
+                    <div class="row g-3">
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded p-3 eh-border">
+                                <div class="eh-muted small">Starts</div>
+                                <div class="fw-semibold">{{ event.startDate|date('F j, Y H:i') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded p-3 eh-border">
+                                <div class="eh-muted small">Ends</div>
+                                <div class="fw-semibold">{{ event.endDate|date('F j, Y H:i') }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded p-3 eh-border">
+                                <div class="eh-muted small">Location</div>
+                                <div class="fw-semibold">{{ event.location }}</div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-6">
+                            <div class="border rounded p-3 eh-border">
+                                <div class="eh-muted small">Capacity</div>
+                                <div class="fw-semibold">{{ event.capacity ?? 'Unlimited' }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% if event.detailedReport %}
+                        <div class="mt-4">
+                            <h2 class="h5 fw-bold mb-3">Report</h2>
+                            <div class="border rounded p-3 eh-border">
+                                <p class="eh-muted mb-0" style="white-space: pre-line;">{{ event.detailedReport }}</p>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="col-12 col-lg-4">
+                    <div class="card eh-card h-100">
+                        <div class="card-body">
+                            <h2 class="h5 fw-bold mb-3">Register</h2>
+                            {% if app.user %}
+                                <form method="post" action="{{ path('registration_register', {'id': event.id}) }}">
+                                    <button class="btn btn-eh-primary w-100" type="submit">Register individually</button>
+                                </form>
+                                {% if event.mode == constant('App\\Entity\\Event::MODE_ORG') and app.user.organizations|length > 0 %}
+                                    <form method="post" action="{{ path('registration_register_org', {'id': event.id}) }}" class="mt-3">
+                                        <label class="form-label eh-muted">Organization</label>
+                                        <select name="organization" class="form-select eh-input mb-2">
+                                            {% for organization in app.user.organizations %}
+                                                <option value="{{ organization.id }}">{{ organization.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <button class="btn btn-outline-secondary w-100" type="submit">Register organization</button>
+                                    </form>
+                                {% endif %}
+                            {% else %}
+                                <a href="{{ path('app_login') }}" class="btn btn-eh-primary w-100">Login to register</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

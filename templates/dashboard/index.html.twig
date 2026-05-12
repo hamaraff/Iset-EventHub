@@ -1,0 +1,116 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3 mb-4">
+        <div>
+            <span class="badge eh-badge text-uppercase">Dashboard</span>
+            <h1 class="display-6 fw-bold mt-2">Welcome back</h1>
+            <p class="eh-muted mb-0">Quick overview of your workspace and pending actions.</p>
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+            <a class="btn btn-eh-primary" href="{{ path('event_list') }}">View events</a>
+            {% if is_granted('ROLE_ORGANIZER') %}
+                <a class="btn btn-eh-accent" href="{{ path('organizer_event_new') }}">Create event</a>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Upcoming events</p>
+                    <h2 class="fw-bold mb-1">[TODO]</h2>
+                    <p class="eh-muted mb-0">Next 30 days</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Pending approvals</p>
+                    <h2 class="fw-bold mb-1">[TODO]</h2>
+                    <p class="eh-muted mb-0">Awaiting review</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Registrations</p>
+                    <h2 class="fw-bold mb-1">[TODO]</h2>
+                    <p class="eh-muted mb-0">Active signups</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-6 col-xl-3">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <p class="text-uppercase eh-muted small mb-2">Attendance</p>
+                    <h2 class="fw-bold mb-1">[TODO]</h2>
+                    <p class="eh-muted mb-0">Checked in</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mt-2">
+        <div class="col-12 col-lg-7">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <h2 class="h5 fw-bold mb-0">Recent activity</h2>
+                        <a class="eh-link" href="{{ path('event_list') }}">View all</a>
+                    </div>
+                    <div class="border-top eh-border pt-3">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <p class="mb-1">[TODO] Activity item</p>
+                                <p class="eh-muted small mb-0">2h ago</p>
+                            </div>
+                            <span class="badge eh-badge">New</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <div>
+                                <p class="mb-1">[TODO] Activity item</p>
+                                <p class="eh-muted small mb-0">Yesterday</p>
+                            </div>
+                            <span class="badge bg-secondary">Info</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <p class="mb-1">[TODO] Activity item</p>
+                                <p class="eh-muted small mb-0">Last week</p>
+                            </div>
+                            <span class="badge text-bg-secondary">Archived</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="card eh-card h-100">
+                <div class="card-body">
+                    <h2 class="h5 fw-bold mb-3">Quick actions</h2>
+                    <div class="d-grid gap-2">
+                        <a class="btn btn-outline-secondary" href="{{ path('calendar_index') }}">Open calendar</a>
+                        {% if is_granted('ROLE_ADMIN') %}
+                            <a class="btn btn-outline-secondary" href="{{ path('admin_event_pending') }}">Review pending events</a>
+                            <a class="btn btn-outline-secondary" href="{{ path('admin_user_index') }}">Manage users</a>
+                        {% endif %}
+                        {% if is_granted('ROLE_STAFF') %}
+                            <a class="btn btn-outline-secondary" href="{{ path('staff_scan') }}">Scan QR codes</a>
+                        {% endif %}
+                        {% if is_granted('ROLE_ORGANIZER') %}
+                            <a class="btn btn-outline-secondary" href="{{ path('organizer_organization_index') }}">My organizations</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

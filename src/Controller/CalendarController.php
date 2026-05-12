@@ -83,6 +83,12 @@ final class CalendarController extends AbstractController
             'dateFrom' => $from->format('Y-m-d'),
             'dateTo' => $to->format('Y-m-d'),
             'eventTypes' => Event::TYPE_LABELS,
+            'eventStatuses' => [
+                Event::STATUS_DRAFT => 'Draft',
+                Event::STATUS_PENDING => 'Pending',
+                Event::STATUS_APPROVED => 'Approved',
+                Event::STATUS_REFUSED => 'Refused',
+            ],
         ]);
     }
     
