@@ -1,0 +1,267 @@
+Cahier des Charges - ISET EventHub
+1. Introduction
+1.1 Contexte
+Au sein de l’ISET Mahdia, l’organisation d’événements par les clubs nécessite souvent des
+démarches administratives longues et peu fluides. La prise de rendez-vous avec l’administration
+ralentit la validation et la mise en place des activités.
+1.2 Problématique
+Difficulté de communication avec l’administration
+Procédures lentes pour validation des événements
+Absence de centralisation des informations
+Manque de visibilité des événements pour les étudiants
+1.3 Solution proposée
+La mise en place d’une plateforme web nommée ISET EventHub, permettant :
+la création d’événements par les clubs
+la validation par l’administration
+la gestion des inscriptions
+la centralisation des événements via un calendrier
+2. Objectifs du projet
+2.1 Objectif principal
+Faciliter et centraliser la gestion des événements au sein de l’ISET Mahdia.
+2.2 Objectifs spécifiques
+Digitaliser le processus de validation des événements
+Réduire le temps de communication avec l’administration
+Offrir une visibilité claire des événements
+Simplifier les inscriptions (étudiants / clubs)
+Automatiser la gestion des participants (QR code)
+3. Acteurs du système
+3.1 Administrateur
+Valider ou refuser les événements
+Consulter tous les événements
+3.2 Organisateur (Club)
+Créer un événement
+Modifier un événement
+Soumettre un événement à validation
+Consulter les inscriptions
+3.3 Participant
+Consulter les événements
+S’inscrire à un événement
+Annuler son inscription
+3.4 Staff
+Scanner les QR codes
+Valider la présence des participants
+4. Fonctionnalités
+4.1 Gestion des événements
+Création
+Un organisateur peut créer un événement avec les informations suivantes :
+Titre
+Description
+Date
+Lieu (interne ou externe à l’ISET)
+Type (ouvert / compétition)
+Mode (individuel / organisation)
+Rapport détaillé
+Cycle de vie des événements
+DRAFT : événement en cours de création
+EN_ATTENTE : soumis à validation
+APPROUVÉ : validé par l’administration
+REFUSÉ : rejeté
+ Toute modification après validation entraîne un retour à EN_ATTENTE
+Contraintes
+Un événement ne peut pas être planifié sur une date déjà occupée
+La capacité est optionnelle
+4.2 Gestion des inscriptions
+Types d’inscription
+Individuelle (étudiant)
+Organisation (club)
+Règles métier
+Un participant peut s’inscrire à plusieurs événements
+Un participant ne peut pas s’inscrire plusieurs fois au même événement
+Une organisation représente l’ensemble du club
+Annulation
+L’utilisateur peut annuler son inscription
+Une confirmation peut être demandée
+4.3 Système QR Code
+Génération
+Généré automatiquement après inscription
+Utilisation
+Scanner par le staff lors de l’événement
+Validation de présence
+4.4 Calendrier
+Fonctionnalités
+Affichage global des événements
+Filtrage par date
+Vue calendrier
+Contrainte
+Empêcher les conflits de dates
+5. Gestion des accès (sécurité)
+Rôles
+Administrateur
+Organisateur
+Participant
+Staff
+Règles d’accès
+Seul l’administrateur valide les événements
+Seul l’organisateur modifie ses événements
+Seuls les participants inscrits peuvent accéder à certaines informations
+6. Modélisation des données (résumé)
+Entités principales
+User
+Organization
+Event
+Registration
+QRCode
+Relations
+Un utilisateur peut appartenir à plusieurs organisations
+Une organisation crée plusieurs événements
+Un événement possède plusieurs inscriptions
+Une inscription génère un QR code
+7. Contraintes techniques
+Application web responsive
+Utilisation de Symfony (backend)
+Base de données relationnelle (MySQL)
+Sécurité des données utilisateurs
+Gestion des rôles
+9. Planning prévisionnel (optionnel)
+Analyse : 2 jours
+Conception : 3 jours
+Développement : 10 jours
+Test : 3 jours
+Conclusion
+Le projet ISET EventHub répond à un besoin réel de digitalisation et d’optimisation de la gestion
+des événements au sein de l’ISET.
+Il propose une solution complète intégrant validation administrative, gestion des inscriptions et
+suivi des participants.
+Annexe
+Diagramme De Cas D’utilisation
+@startuml
+left to right direction
+
+actor Admin
+actor Organisateur
+actor Participant
+actor Staff
+
+rectangle "ISET EventHub" {
+
+  ' ===== Admin =====
+  Admin --> (Valider événement)
+  Admin --> (Refuser événement)
+  Admin --> (Consulter événements)
+
+  ' ===== Organisateur =====
+  Organisateur --> (Créer événement)
+  Organisateur --> (Modifier événement)
+  Organisateur --> (Soumettre événement)
+  Organisateur --> (Consulter inscriptions)
+
+  ' ===== Participant =====
+  Participant --> (Consulter événements)
+  Participant --> (S'inscrire à un événement)
+  Participant --> (Annuler inscription)
+
+  ' ===== Staff =====
+  Staff --> (Scanner QR Code)
+  Staff --> (Valider présence)
+
+  ' ===== Relations importantes =====
+  (Soumettre événement) --> (Valider événement) : <<include>>
+  (S'inscrire à un événement) --> (Générer QR Code) : <<include>>
+
+}
+
+@enduml
+Diagramme De Classes
+
+@startuml
+
+' Force horizontal layout
+left to right direction
+
+skinparam linetype ortho
+
+' =========================
+' USER
+' =========================
+class User {
+  id : int
+  name : string
+  email : string
+  password : string
+  role : string
+
+  +register()
+  +login()
+  +joinEvent()
+  +leaveEvent()
+}
+
+' =========================
+' ORGANIZATION
+' =========================
+class Organization {
+  id : int
+  name : string
+  description : string
+  logo : string
+
+  +createEvent()
+  +addMember(User)
+  +removeMember(User)
+  +listEvents()
+}
+
+' =========================
+' EVENT
+' =========================
+class Event {
+  id : int
+  title : string
+  description : string
+  location : string
+  startDate : datetime
+  endDate : datetime
+  status : string
+  type : string
+  capacity : int
+
+  +submitForApproval()
+  +approve()
+  +reject()
+  +activate()
+  +finish()
+  +addRegistration(Registration)
+}
+
+' =========================
+' REGISTRATION
+' =========================
+class Registration {
+  id : int
+  type : string
+  status : string
+  qrCode : string
+  checkedInAt : datetime
+  createdAt : datetime
+
+  +generateQRCode()
+  +validate()
+  +checkIn()
+  +cancel()
+}
+
+' =========================
+' QR CODE
+' =========================
+class QRCode {
+  id : int
+  value : string
+  generatedAt : datetime
+  isValid : boolean
+
+  +generate()
+  +invalidate()
+}
+
+' =========================
+' RELATIONS
+' =========================
+
+User "0..*" -- "0..*" Organization : member of
+Organization "1" -- "0..*" Event : creates
+Event "1" -- "0..*" Registration : has
+User "1" -- "0..*" Registration : makes
+Organization "1" -- "0..*" Registration : participates
+Registration "1" -- "0..1" QRCode : generates
+
+@enduml

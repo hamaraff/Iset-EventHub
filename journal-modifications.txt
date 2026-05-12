@@ -1,0 +1,52 @@
+Date: 2026-05-02
+Task ID: T1.1
+Action: Installed security bundle, generated User/auth, configured role-based access.
+Reason: Establish authentication and authorization baseline before business modules.
+Files impacted: composer.json, composer.lock, src/Entity/User.php, config/packages/security.yaml, src/Security/LoginFormAuthenticator.php, src/Controller/SecurityController.php, templates/security/login.html.twig
+Commands executed: composer require symfony/security-bundle; php bin/console make:user; php bin/console make:auth; php bin/console make:migration; php bin/console doctrine:migrations:migrate
+Result: Login and role access control initialized.
+Next step: T1.2 - define role assignment strategy and create admin bootstrap command.
+
+Date: 2026-05-02
+Task ID: T1.2
+What changed: Implemented admin bootstrap command `app:create-admin` to create/update admin by email, hash password, and assign `ROLE_ADMIN`.
+Why: Ensure controlled admin initialization and role governance from CLI.
+Impacted files: src/Command/CreateAdminCommand.php
+Pending follow-up: Clean command messages (single create/update message path) and improve success wording based on create vs update.
+
+Date: 2026-05-02
+Task ID: T2.1
+What changed: Implemented `Organization` core entity with fields (`name`, `description`, `logo`, `createdAt`) and relations (`Organization` <-> `User` members, `Organization` -> `Event`).
+Why: Establish organizational structure required for event ownership and membership model.
+Impacted files: src/Entity/Organization.php, src/Entity/User.php, migrations/Version20260502191059.php
+Pending follow-up: Ensure bidirectional relation consistency in add/remove methods and keep migration history aligned.
+
+Date: 2026-05-02
+Task ID: T2.2 (in progress)
+What changed: Implemented `Event` entity base fields (`title`, `description`, `startDate`, `endDate`, `status`, `type`, `mode`, `capacity`, `detailedReport`, `createdAt`, `updatedAt`) and `ManyToOne` relation to `Organization`; default status initialized to `DRAFT`.
+Why: Prepare event lifecycle foundation before registrations and validation workflows.
+Impacted files: src/Entity/Event.php, src/Entity/Organization.php, src/Repository/EventRepository.php, migrations/Version20260502191059.php
+Pending follow-up: Add `Event` -> `Registration` relation, add status/type/mode constants, add date validation (`endDate > startDate`), add conflict-check query in `EventRepository`, and fix `Organization::removeEvent()` non-nullable organization mismatch.
+
+Date: 2026-05-02
+Task ID: T2.2
+What changed: Finalized Event domain model for T2.2: added location + mode constants, Event↔Registration OneToMany with orphanRemoval, Symfony callback validation for start/end dates, helper methods (isDateRangeValid, markAsPendingAfterApprovedEdit, touch), and EventRepository hasDateConflict() overlap check. Aligned Registration relations to inversedBy registrations; removed invalid nulling of non-nullable Registration.user on User.removeRegistration; tightened Event.setOrganization and Registration setters to non-null where appropriate.
+Why: Close the Event foundation before building registration flows and admin approval workflows.
+Impacted files: src/Entity/Event.php, src/Entity/User.php, src/Entity/Registration.php, src/Repository/EventRepository.php
+Pending follow-up: Ensure DB migration includes event.location if not migrated yet; standardize getter names to getRegistrations() if any lowercase variant remains.
+Result: T2.2 COMPLETE.
+Next step: T2.3 Registration rules + constraints (duplicate prevention, cancel/check-in statuses, org vs individual registration model, optional QRCode entity vs keeping qr string on Registration).
+
+Date: 2026-05-02
+Task ID: T2.3 (START)
+What changed: Begin registration module hardening: define registration type/status constants, enforce unique active registration per user+event, design organization registration representation, prepare repository queries.
+Why: Meet cahier rules: no double registration, support individual vs organization registration, enable later QR generation.
+Impacted files (planned): src/Entity/Registration.php, src/Repository/RegistrationRepository.php, possible migration for unique index + nullable organization_id
+Pending follow-up: Decide QR storage: separate QRCode entity vs registration.qrCode string; implement generation hook after successful registration.
+
+Date: 2026-05-02
+Task ID: T2.3 (START)
+What changed: Begin registration module hardening: define registration type/status constants, enforce unique active registration per user+event, design organization registration representation, prepare repository queries.
+Why: Meet cahier rules: no double registration, support individual vs organization registration, enable later QR generation.
+Impacted files (planned): src/Entity/Registration.php, src/Repository/RegistrationRepository.php, possible migration for unique index + nullable organization_id
+Pending follow-up: Decide QR storage: separate QRCode entity vs registration.qrCode string; implement generation hook after successful registration.

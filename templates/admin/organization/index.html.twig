@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Organizations - Admin{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-slate-900">Organizations</h1>
+        <a href="{{ path('admin_organization_create') }}" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Create Organization
+        </a>
+    </div>
+
+    {% if organizations is empty %}
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-16 h-16 mx-auto text-slate-400 mb-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-slate-900 mb-2">No organizations found</h3>
+            <p class="text-slate-600">Create your first organization to get started.</p>
+        </div>
+    {% else %}
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <table class="min-w-full divide-y divide-slate-200">
+                <thead class="bg-slate-50">
+                    <tr>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Name</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Description</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Members</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Events</th>
+                        <th class="px-6 py-3 text-left text-xs font-medium text-slate-500 uppercase tracking-wider">Created</th>
+                        <th class="px-6 py-3 text-right text-xs font-medium text-slate-500 uppercase tracking-wider">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-slate-200">
+                    {% for organization in organizations %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <div class="flex items-center">
+                                    {% if organization.logo %}
+                                        <img src="{{ organization.logo }}" alt="{{ organization.name }}" class="h-10 w-10 rounded-full mr-3">
+                                    {% else %}
+                                        <div class="h-10 w-10 rounded-full bg-slate-200 flex items-center justify-center mr-3">
+                                            <span class="text-slate-500 font-medium">{{ organization.name|first|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    <div class="text-sm font-medium text-slate-900">{{ organization.name }}</div>
+                                </div>
+                            </td>
+                            <td class="px-6 py-4">
+                                <div class="text-sm text-slate-600 max-w-xs truncate">
+                                    {{ organization.description|default('No description') }}
+                                </div>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                    {{ organization.members|length }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    {{ organization.events|length }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                                {{ organization.createdAt|date('M j, Y') }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                <a href="{{ path('admin_organization_edit', {'id': organization.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-900 mr-3">Edit</a>
+                                <a href="{{ path('admin_organization_members', {'id': organization.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-900 mr-3">Members</a>
+                                <form method="post" action="{{ path('admin_organization_delete', {'id': organization.id}) }}" 
+                                      class="inline" onsubmit="return confirm('Are you sure you want to delete this organization?');">
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

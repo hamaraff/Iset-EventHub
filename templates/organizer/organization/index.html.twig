@@ -1,0 +1,86 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Organizations - Organizer{% endblock %}
+
+{% block body %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-slate-900">My Organizations</h1>
+        <a href="{{ path('organizer_organization_create') }}" 
+           class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Create Organization
+        </a>
+    </div>
+
+    {% if organizations is empty %}
+        <div class="text-center py-12 bg-white rounded-lg shadow-sm">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-16 h-16 mx-auto text-slate-400 mb-4">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <h3 class="text-lg font-medium text-slate-900 mb-2">No organizations yet</h3>
+            <p class="text-slate-600 mb-4">Create your first organization to start managing events.</p>
+            <a href="{{ path('organizer_organization_create') }}" 
+               class="inline-block px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+                Create Organization
+            </a>
+        </div>
+    {% else %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for organization in organizations %}
+                <div class="bg-white rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    <div class="p-6">
+                        <div class="flex items-center mb-4">
+                            {% if organization.logo %}
+                                <img src="{{ organization.logo }}" alt="{{ organization.name }}" class="h-12 w-12 rounded-full mr-3">
+                            {% else %}
+                                <div class="h-12 w-12 rounded-full bg-blue-100 flex items-center justify-center mr-3">
+                                    <span class="text-blue-600 font-bold text-lg">{{ organization.name|first|upper }}</span>
+                                </div>
+                            {% endif %}
+                            <h3 class="text-xl font-semibold text-slate-900">{{ organization.name }}</h3>
+                        </div>
+                        
+                        <p class="text-slate-600 text-sm mb-4 line-clamp-2">
+                            {{ organization.description|default('No description provided') }}
+                        </p>
+                        
+                        <div class="flex items-center space-x-4 text-sm text-slate-500 mb-4">
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 mr-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                                </svg>
+                                {{ organization.members|length }} members
+                            </span>
+                            <span class="flex items-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-4 h-4 mr-1">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                </svg>
+                                {{ organization.events|length }} events
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="px-6 py-4 bg-slate-50 border-t border-slate-200">
+                        <div class="flex items-center justify-between">
+                            <a href="{{ path('organizer_organization_view', {'id': organization.id}) }}" 
+                               class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                View Details
+                            </a>
+                            <div class="flex items-center space-x-2">
+                                <a href="{{ path('organizer_organization_edit', {'id': organization.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Edit
+                                </a>
+                                <a href="{{ path('organizer_organization_members', {'id': organization.id}) }}" 
+                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                    Members
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+</div>
+{% endblock %}

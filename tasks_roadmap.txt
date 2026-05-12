@@ -1,0 +1,52 @@
+Project Breakdown (Task Roadmap)
+Task 0 - Foundation & Standards
+Define tech conventions, folders, role constants, status enums, and a change-log file.
+Output: project baseline + documentation files.
+Task 1 - Authentication & Role System
+User entity + Symfony Security login/logout.
+Roles: ROLE_ADMIN, ROLE_ORGANIZER, ROLE_PARTICIPANT, ROLE_STAFF.
+Access control rules in security.yaml.
+Task 2 - Core Domain Entities
+Create entities + relations:
+Organization
+Event
+Registration
+QRCode
+Add lifecycle/status fields and constraints from specs.
+Task 3 - Event Management (Organizer/Admin)
+Organizer: create/edit/submit event.
+Admin: approve/refuse.
+Business rule: any modification after approval -> back to EN_ATTENTE.
+Date conflict prevention.
+Task 4 - Registration Management
+Participant registration (individual).
+Organization registration (club).
+Prevent duplicate registration per participant/event.
+Cancel registration with confirmation flow.
+Task 5 - QR Code Attendance
+Generate QR after registration.
+Staff scan endpoint/UI.
+Mark presence (checkedInAt) and validate QR state.
+Task 6 - Calendar & Event Listing
+Global event view.
+Filters by date/type/status.
+Conflict-safe scheduling behavior.
+Task 7 - Authorization Hardening
+Voters/policies to enforce:
+only admin validates
+organizer edits only own events
+restricted info only for registered participants.
+Task 8 - Tests
+Unit + functional tests for business rules and access control.
+Task 9 - UX/Responsive + Final Review
+responsive pages, final QA, deployment readiness checklist.
+Files You Should Keep (as you proposed)
+cahier des charges.txt (already done) -> immutable source of requirements.
+journal-modifications.txt -> every change decision, date, and reason.
+
+
+
+
+
+
+
