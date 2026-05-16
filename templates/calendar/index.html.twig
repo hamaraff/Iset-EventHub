@@ -13,7 +13,7 @@
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: prevYear, month: prevMonth, type: filterType, status: filterStatus }) }}">Prev</a>
             <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: nextYear, month: nextMonth, type: filterType, status: filterStatus }) }}">Next</a>
-            <a class="btn btn-eh-primary" href="{{ path('calendar_list', { from: visibleFrom, to: visibleTo, type: filterType, status: filterStatus }) }}">List view</a>
+            <a class="btn btn-eh-primary" href="{{ path('event_list') }}">Events list</a>
         </div>
     </div>
 

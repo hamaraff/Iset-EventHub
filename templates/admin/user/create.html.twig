@@ -41,6 +41,15 @@
                         {% endfor %}
                     </div>
                 </div>
+                <div class="col-12">
+                    <label class="form-label eh-muted" for="organization_ids">Clubs / Organizations</label>
+                    <select class="form-select eh-input" id="organization_ids" name="organization_ids[]" multiple>
+                        {% for organization in organizations %}
+                            <option value="{{ organization.id }}">{{ organization.name }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">Select clubs for participant membership. Organizer users will receive an organization automatically.</div>
+                </div>
                 <div class="col-12 d-flex flex-wrap gap-2">
                     <button class="btn btn-eh-primary" type="submit">Create user</button>
                     <a class="btn btn-outline-secondary" href="{{ path('admin_user_index') }}">Cancel</a>

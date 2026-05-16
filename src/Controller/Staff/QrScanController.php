@@ -41,6 +41,15 @@ final class QrScanController extends AbstractController
         }
 
         $event = $registration->getEvent();
+
+        // Restrict staff to their own organizations' events (admins bypass)
+        $user = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $org = $event->getOrganization();
+            if ($org && !$user->getOrganizations()->contains($org)) {
+                return $this->json(['valid' => false, 'message' => 'You are not permitted to validate tickets for this event'], 403);
+            }
+        }
         // Check if already checked in
         if ($registration->getStatus() === Registration::STATUS_CHECKED_IN) {
             return $this->json([
@@ -96,6 +105,15 @@ final class QrScanController extends AbstractController
 
         $event = $registration->getEvent();
 
+        // Restrict staff to their own organizations' events (admins bypass)
+        $user = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $org = $event->getOrganization();
+            if ($org && !$user->getOrganizations()->contains($org)) {
+                return $this->json(['success' => false, 'message' => 'You are not permitted to check in attendees for this event'], 403);
+            }
+        }
+
         // Verify registration is valid for check-in
         if ($registration->getStatus() === Registration::STATUS_CHECKED_IN) {
             return $this->json([
@@ -126,6 +144,15 @@ final class QrScanController extends AbstractController
     #[Route('/event/{id}/attendance', name: 'staff_event_attendance', methods: ['GET'])]
     public function attendance(Event $event): Response
     {
+        // Restrict staff to their own organizations' events (admins bypass)
+        $user = $this->getUser();
+        if (!$this->isGranted('ROLE_ADMIN')) {
+            $org = $event->getOrganization();
+            if ($org && !$user->getOrganizations()->contains($org)) {
+                $this->addFlash('error', 'You are not permitted to view attendance for this event.');
+                return $this->redirectToRoute('staff_scan');
+            }
+        }
         $checkedIn = $event->getRegistrations()->filter(
             fn(Registration $r) => $r->getStatus() === Registration::STATUS_CHECKED_IN
         );

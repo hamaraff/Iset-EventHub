@@ -25,8 +25,8 @@
                     <div class="form-text">Optional: Provide a brief description of your organization.</div>
                 </div>
                 <div class="col-12">
-                    {{ form_row(form.logo, { label: 'Logo URL', label_attr: { class: 'form-label eh-muted' }, attr: { class: 'form-control eh-input', placeholder: 'https://example.com/logo.png' } }) }}
-                    <div class="form-text">Optional: Enter the URL of your organization logo.</div>
+                    {{ form_row(form.logo, { label: 'Logo', label_attr: { class: 'form-label eh-muted' }, attr: { class: 'form-control eh-input', accept: 'image/*' } }) }}
+                    <div class="form-text">Optional: Upload a new logo image to replace the current one.</div>
                 </div>
                 <div class="col-12 d-flex flex-wrap gap-2">
                     <a href="{{ path('organizer_organization_index') }}" class="btn btn-outline-secondary">Cancel</a>

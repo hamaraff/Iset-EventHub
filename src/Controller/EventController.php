@@ -15,10 +15,14 @@ final class EventController extends AbstractController
     #[Route('', name: 'event_list', methods: ['GET'])]
     public function index(EventRepository $eventRepository): Response
     {
-        $events = $eventRepository->findBy(
-            ['status' => Event::STATUS_APPROVED],
-            ['startDate' => 'ASC']
-        );
+        $events = $eventRepository->createQueryBuilder('e')
+            ->where('e.status = :status')
+            ->andWhere('e.endDate >= :now')
+            ->setParameter('status', Event::STATUS_APPROVED)
+            ->setParameter('now', new \DateTimeImmutable())
+            ->orderBy('e.startDate', 'ASC')
+            ->getQuery()
+            ->getResult();
 
         return $this->render('event/index.html.twig', [
             'events' => $events,
@@ -29,8 +33,8 @@ final class EventController extends AbstractController
     #[Route('/{id}', name: 'event_show', methods: ['GET'])]
     public function show(Event $event): Response
     {
-        // Only show approved events to public
-        if ($event->getStatus() !== Event::STATUS_APPROVED) {
+        // Only show approved events to public, but allow admins to review pending events.
+        if ($event->getStatus() !== Event::STATUS_APPROVED && !$this->isGranted('ROLE_ADMIN')) {
             throw $this->createNotFoundException('Event not found');
         }
 

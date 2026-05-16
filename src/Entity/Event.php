@@ -84,16 +84,31 @@ class Event
 
     #[ORM\Column(length: 255)]
     private ?string $location = null;
+
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imagePath = null;
+
     public function getLocation(): ?string
     {
         return $this->location;
     }
+
     public function setLocation(string $location): static
     {
         $this->location = $location;
         return $this;
     }
 
+    public function getImagePath(): ?string
+    {
+        return $this->imagePath;
+    }
+
+    public function setImagePath(?string $imagePath): static
+    {
+        $this->imagePath = $imagePath;
+        return $this;
+    }
 
 
     public function getId(): ?int
@@ -310,6 +325,14 @@ class Event
         if ($this->startDate === null || $this->endDate === null) {
             return;
         }
+
+        $now = new \DateTimeImmutable();
+        if ($this->startDate < $now) {
+            $context->buildViolation('Start date must be valid')
+                ->atPath('startDate')
+                ->addViolation();
+        }
+
         if ($this->endDate <= $this->startDate) {
             $context->buildViolation('End date must be after start date')
                 ->atPath('endDate')

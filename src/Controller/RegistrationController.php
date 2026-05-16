@@ -61,6 +61,12 @@ final class RegistrationController extends AbstractController
             return $this->redirectToRoute('event_list');
         }
 
+        // Server-side enforcement: only individual-mode events allow individual registrations
+        if ($event->getMode() !== \App\Entity\Event::MODE_INDIV) {
+            $this->addFlash('error', 'This event does not support individual registration.');
+            return $this->redirectToRoute('event_list');
+        }
+
         $registration = new Registration();
         $registration->setEvent($event);
         $registration->setUser($user);

@@ -42,8 +42,8 @@ final class EventRegistrationVoter extends Voter
 
     private function canRegister(Event $event, User $user): bool
     {
-        // Individual registration allowed for INDIVIDUEL mode events
-        if ($event->getMode() !== Event::MODE_INDIV && $event->getMode() !== null) {
+        // Individual registration allowed only for INDIVIDUEL mode events
+        if ($event->getMode() !== Event::MODE_INDIV) {
             return false;
         }
 

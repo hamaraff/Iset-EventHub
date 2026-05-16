@@ -9,6 +9,9 @@
     </div>
 
     <div class="card eh-card">
+        {% if event.imagePath %}
+            <div class="event-detail-image mb-0" style="background-image: url('{{ asset('uploads/events/' ~ event.imagePath) }}');"></div>
+        {% endif %}
         <div class="card-body border-bottom eh-border">
             <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge text-bg-info">{{ event.status }}</span>
@@ -89,68 +92,71 @@
                         {% set activeRegistrations = event.registrations|filter(registration => registration.status != constant('App\\Entity\\Registration::STATUS_CANCELLED')) %}
                         {% set individualRegistrations = activeRegistrations|filter(registration => registration.type == constant('App\\Entity\\Registration::TYPE_INDIVIDUAL')) %}
                         {% set organizationRegistrations = activeRegistrations|filter(registration => registration.type == constant('App\\Entity\\Registration::TYPE_ORGANIZATION')) %}
+                        {% set isOrganizationMode = event.mode == constant('App\\Entity\\Event::MODE_ORG') %}
+                        {% set registrationsToShow = isOrganizationMode ? organizationRegistrations : individualRegistrations %}
+                        {% set registrationLabel = isOrganizationMode ? 'Organization attendees' : 'Individual attendees' %}
+                        {% set buttonLabel = isOrganizationMode ? 'View registered organizations' : 'View registered individuals' %}
 
                         <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-2 mb-3">
-                            <h2 class="h5 fw-bold mb-0">Registered attendees</h2>
+                            <div>
+                                <h2 class="h5 fw-bold mb-1">Registered attendees</h2>
+                                <span class="text-muted small">Showing {{ registrationLabel|lower }} in a popup.</span>
+                            </div>
                             <span class="badge eh-badge">{{ activeRegistrations|length }} active registration{{ activeRegistrations|length == 1 ? '' : 's' }}</span>
                         </div>
 
-                        {% if activeRegistrations is empty %}
-                            <div class="border rounded p-3 eh-border">
-                                <p class="eh-muted mb-0">No attendees have registered yet.</p>
-                            </div>
-                        {% else %}
-                            <div class="row g-3">
-                                <div class="col-12 col-xl-6">
-                                    <div class="border rounded p-3 eh-border h-100">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h3 class="h6 fw-bold mb-0">Individuals</h3>
-                                            <span class="badge text-bg-primary">{{ individualRegistrations|length }}</span>
-                                        </div>
-                                        {% if individualRegistrations is empty %}
-                                            <p class="eh-muted mb-0">No individual registrations.</p>
-                                        {% else %}
-                                            <div class="d-grid gap-2">
-                                                {% for registration in individualRegistrations %}
-                                                    <div class="rounded bg-light border eh-border p-2">
-                                                        <div class="fw-semibold">{{ registration.user.name }}</div>
-                                                        <div class="small eh-muted">{{ registration.user.email }}</div>
-                                                        <div class="small mt-1">
-                                                            <span class="badge eh-badge">{{ registration.status }}</span>
-                                                        </div>
-                                                    </div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endif %}
-                                    </div>
+                        <div class="border rounded p-3 eh-border">
+                            <div class="d-flex flex-column flex-sm-row align-items-sm-center justify-content-between gap-3">
+                                <div>
+                                    <p class="mb-1">Event mode: <strong>{{ event.mode == constant('App\\Entity\\Event::MODE_ORG') ? 'Organisation' : 'Individuel' }}</strong></p>
+                                    <p class="eh-muted mb-0">Open the attendee list without leaving the page.</p>
                                 </div>
+                                <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#registrationModal">
+                                    {{ buttonLabel }}
+                                    <span class="badge bg-secondary ms-2">{{ registrationsToShow|length }}</span>
+                                </button>
+                            </div>
+                        </div>
 
-                                <div class="col-12 col-xl-6">
-                                    <div class="border rounded p-3 eh-border h-100">
-                                        <div class="d-flex align-items-center justify-content-between mb-3">
-                                            <h3 class="h6 fw-bold mb-0">Organizations</h3>
-                                            <span class="badge text-bg-secondary">{{ organizationRegistrations|length }}</span>
-                                        </div>
-                                        {% if organizationRegistrations is empty %}
-                                            <p class="eh-muted mb-0">No organization registrations.</p>
+                        <div class="modal fade" id="registrationModal" tabindex="-1" aria-labelledby="registrationModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="registrationModalLabel">{{ registrationLabel }}</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        {% if registrationsToShow is empty %}
+                                            <div class="border rounded p-4 eh-border text-center">
+                                                <p class="eh-muted mb-0">No {{ registrationLabel|lower }} yet.</p>
+                                            </div>
                                         {% else %}
-                                            <div class="d-grid gap-2">
-                                                {% for registration in organizationRegistrations %}
-                                                    <div class="rounded bg-light border eh-border p-2">
-                                                        <div class="fw-semibold">{{ registration.organization ? registration.organization.name : 'Organization unavailable' }}</div>
-                                                        <div class="small eh-muted">Representative: {{ registration.user.name }}</div>
-                                                        <div class="small eh-muted">{{ registration.user.email }}</div>
-                                                        <div class="small mt-1">
-                                                            <span class="badge eh-badge">{{ registration.status }}</span>
+                                            <div class="row g-3">
+                                                {% for registration in registrationsToShow %}
+                                                    <div class="col-12">
+                                                        <div class="rounded bg-light border eh-border p-3">
+                                                            {% if isOrganizationMode %}
+                                                                <div class="fw-semibold">{{ registration.organization ? registration.organization.name : 'Organization unavailable' }}</div>
+                                                                <div class="small eh-muted">Representative: {{ registration.user.name }}</div>
+                                                            {% else %}
+                                                                <div class="fw-semibold">{{ registration.user.name }}</div>
+                                                                <div class="small eh-muted">{{ registration.user.email }}</div>
+                                                            {% endif %}
+                                                            <div class="small mt-2">
+                                                                <span class="badge eh-badge">{{ registration.status }}</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 {% endfor %}
                                             </div>
                                         {% endif %}
                                     </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
                                 </div>
                             </div>
-                        {% endif %}
+                        </div>
                     </div>
                 </div>
 
@@ -158,7 +164,7 @@
                     <div class="card eh-card h-100">
                         <div class="card-body">
                             <h2 class="h5 fw-bold mb-3">Register</h2>
-                            {% if app.user and (is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF')) %}
+                            {% if app.user and is_granted('ROLE_ADMIN') %}
                                 <div class="alert alert-info mb-0" role="status">
                                     You can view this event and its details, but registration is only available to participants and organizers.
                                 </div>

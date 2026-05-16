@@ -7,10 +7,13 @@ use App\Form\OrganizationType;
 use App\Repository\OrganizationRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
 #[Route('/admin/organizations')]
 #[IsGranted('ROLE_ADMIN')]
@@ -26,33 +29,35 @@ final class OrganizationController extends AbstractController
         ]);
     }
     
-    #[Route('/create', name: 'admin_organization_create', methods: ['GET', 'POST'])]
-    public function create(Request $request, EntityManagerInterface $em): Response
-    {
-        $organization = new Organization();
-        $form = $this->createForm(OrganizationType::class, $organization);
-        $form->handleRequest($request);
-
-        if ($form->isSubmitted() && $form->isValid()) {
-            $em->persist($organization);
-            $em->flush();
-
-            $this->addFlash('success', 'Organization created successfully.');
-            return $this->redirectToRoute('admin_organization_index');
-        }
-        
-        return $this->render('admin/organization/create.html.twig', [
-            'form' => $form->createView(),
-        ]);
-    }
-    
     #[Route('/{id}/edit', name: 'admin_organization_edit', methods: ['GET', 'POST'])]
-    public function edit(Organization $organization, Request $request, EntityManagerInterface $em): Response
+    public function edit(Organization $organization, Request $request, EntityManagerInterface $em, SluggerInterface $slugger): Response
     {
         $form = $this->createForm(OrganizationType::class, $organization);
         $form->handleRequest($request);
 
         if ($form->isSubmitted() && $form->isValid()) {
+            /** @var UploadedFile|null $logoFile */
+            $logoFile = $form->get('logo')->getData();
+            if ($logoFile) {
+                $targetDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/organizations';
+                if (!is_dir($targetDirectory)) {
+                    mkdir($targetDirectory, 0755, true);
+                }
+
+                $originalFilename = pathinfo($logoFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $extension = $logoFile->guessExtension() ?: $logoFile->getClientOriginalExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
+
+                try {
+                    $logoFile->move($targetDirectory, $newFilename);
+                    $organization->setLogo($newFilename);
+                } catch (FileException $exception) {
+                    $this->addFlash('error', 'Unable to upload organization logo.');
+                    return $this->redirectToRoute('admin_organization_edit', ['id' => $organization->getId()]);
+                }
+            }
+
             $em->flush();
 
             $this->addFlash('success', 'Organization updated successfully.');

@@ -1,0 +1,147 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}ISET EventHub{% endblock %}
+
+{% block body %}
+<main>
+    <section class="home-hero text-white d-flex align-items-center" aria-label="Landing hero">
+        <div class="container py-5 py-lg-6">
+            <div class="row align-items-center gy-5">
+                <div class="col-lg-6">
+                    <p class="text-uppercase fw-semibold letter-spacing mb-3">EventHub for everyone</p>
+                    <h1 class="display-5 fw-bold mb-3">Discover public events and stay on top of every date.</h1>
+                    <p class="lead text-white mb-4">
+    Browse open events, check the calendar, and join the next experience at ISET EventHub. Everything is public and ready for your next visit.
+</p>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="{{ path('event_list') }}" class="btn btn-eh-primary btn-lg">Browse events</a>
+                        <a href="{{ path('calendar_index') }}" class="btn btn-outline-light btn-lg">Open calendar</a>
+                    </div>
+                    <div class="mt-5 d-flex flex-wrap gap-3">
+                        <div class="badge bg-white text-dark px-3 py-2 rounded-pill">Public events</div>
+                        <div class="badge bg-white text-dark px-3 py-2 rounded-pill">Live updates</div>
+                        <div class="badge bg-white text-dark px-3 py-2 rounded-pill">Full calendar</div>
+                    </div>
+                </div>
+                <div class="col-lg-5 offset-lg-1 d-none d-lg-block">
+                    <div class="hero-image-grid">
+                        <div class="hero-image-card" style="background-image: url('{{ asset('assets/images/events/event 2.jpg') }}');">
+                            <div class="hero-image-caption">Training courses</div>
+                        </div>
+                        <div class="hero-image-card hero-image-card-large" style="background-image: url('{{ asset('assets/images/events/event 5.jpg') }}');">
+                            <div class="hero-image-caption">Car Meeting moment</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5">
+        <div class="section-header text-center mb-5">
+            <p class="text-uppercase eh-muted small mb-2">Calendar preview</p>
+            <h2 class="fw-bold">See the next week at a glance</h2>
+            <p class="eh-muted mb-0">View a quick summary of the next seven days and open the full calendar for all public events.</p>
+        </div>
+
+        <div class="calendar-grid mb-4">
+            {% for day in calendarPreview %}
+                <div class="calendar-day {{ day.isToday ? 'is-today' : '' }}">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="day-label">{{ day.label }}</span>
+                        {% if day.isToday %}
+                            <span class="badge bg-primary">Today</span>
+                        {% endif %}
+                    </div>
+                    <div class="day-number">{{ day.day }}</div>
+                    <div class="mt-4">
+                        <span class="badge bg-white text-dark">{{ day.count }} event{{ day.count == 1 ? '' : 's' }}</span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="row align-items-stretch g-4">
+            <div class="col-lg-7">
+                <div class="card eh-card h-100 p-4">
+                    <div>
+                        <p class="text-uppercase eh-muted small mb-2">Upcoming window</p>
+                        <h3 class="h5 fw-bold mb-2">Next 30 days</h3>
+                        <p class="eh-muted mb-3">There are currently <strong>{{ upcomingCount }}</strong> approved public events on the calendar. Use the full calendar to refine the date range and type filters.</p>
+                        <a class="btn btn-eh-accent" href="{{ path('calendar_index') }}">Open full calendar</a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-5">
+                <div class="card eh-card overflow-hidden h-100"
+                    style="
+                        height: 350px !important;
+                        background-image:
+                        linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)),
+                        url('{{ asset('assets/images/events/event 4.jpg') }}');
+                        background-size: cover;
+                        background-repeat: no-repeat;
+                        background-position: center;
+                    ">
+                    <div class="card-body d-flex flex-column justify-content-end h-100 text-white">
+                        <p class="text-uppercase small mb-2">Discover events</p>
+
+                        <h3 class="fw-bold mb-3">
+                            From workshops to competitions
+                        </h3>
+
+                        <p class="mb-0">
+                            Join public events, connect with organizers,
+                            and keep your calendar full of the best ISET experiences.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="container py-5 bg-white rounded-3 shadow-sm">
+        <div class="section-header text-center mb-5">
+            <p class="text-uppercase eh-muted small mb-2">Featured events</p>
+            <h2 class="fw-bold">Public events to join</h2>
+            <p class="eh-muted mb-0">Explore approved events happening soon and save your spot today.</p>
+        </div>
+
+        {% if featuredEvents is empty %}
+            <div class="card eh-card text-center py-5">
+                <div class="card-body">
+                    <h3 class="h5 fw-bold mb-2">No events available yet</h3>
+                    <p class="eh-muted mb-0">Check back soon for new public events on ISET EventHub.</p>
+                </div>
+            </div>
+        {% else %}
+            <div class="row g-4">
+                {% for event in featuredEvents %}
+                    <div class="col-12 col-md-6 col-xl-4">
+                        <div class="card eh-card h-100 shadow-sm overflow-hidden featured-event-card">
+                            <div class="event-card-image" style="background-image:url('{{ event.imagePath ? asset('uploads/events/' ~ event.imagePath) : 'https://images.unsplash.com/photo-1521737604893-d14cc237f11d?auto=format&fit=crop&w=1000&q=80' }}');"></div>
+                            <div class="card-body d-flex flex-column">
+                                <div class="d-flex justify-content-between align-items-start mb-3">
+                                    <div>
+                                        <h3 class="h5 fw-bold mb-2">{{ event.title }}</h3>
+                                        <p class="eh-muted small mb-0">{{ event.location }} · {{ event.mode }}</p>
+                                    </div>
+                                    <span class="badge bg-primary">{{ event.type }}</span>
+                                </div>
+                                <p class="eh-muted mb-4">{{ event.description|length > 100 ? event.description[:100] ~ '…' : event.description }}</p>
+                                <div class="event-meta mb-3">
+                                    <span>Starts {{ event.startDate|date('M j, Y H:i') }}</span>
+                                    <span>{{ event.location }}</span>
+                                </div>
+                                <a href="{{ path('event_show', {'id': event.id}) }}" class="btn btn-outline-secondary w-100 mt-auto">View details</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </section>
+
+    {{ include('home/_footer.html.twig') }}
+</main>
+{% endblock %}

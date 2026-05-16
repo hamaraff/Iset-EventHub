@@ -1,0 +1,9 @@
+Name	Email	Roles	Password
+SuperAdmin	admin@iset.tn	ROLE_ADMIN ROLE_PARTICIPANT	 , Admin1234
+GameZone	gamezone@iset.tn	ROLE_PARTICIPANT ROLE_ORGANIZER	 , Gamezone1234
+TPL	tpl@iset.tn	ROLE_PARTICIPANT ROLE_ORGANIZER	, Tpl1234
+Impact	impact@iset.tn	ROLE_PARTICIPANT ROLE_ORGANIZER	, Impact1234
+Chess Lovers	chesslovers@iset.tn	ROLE_PARTICIPANT ROLE_ORGANIZER	, Chess1234
+Mohamed Rafrafi	mohamedrafrafi@iset.tn	ROLE_PARTICIPANT	, Rafrafi1234
+Adem Tebini	ademtebini@iset.tn	ROLE_PARTICIPANT ROLE_STAFF , Adem1234
+Cyber Boot cyberboot@iset.tn , ROLE_PARTICIPANT ROLE_ORGANIZER , Cyber@1234

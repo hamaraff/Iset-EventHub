@@ -1,0 +1,28 @@
+<footer class="container py-5">
+    <div class="row gy-4">
+        <div class="col-12 col-md-4">
+            <h5 class="fw-bold">ISET EventHub</h5>
+            <p class="eh-muted mb-0">A public gateway for upcoming events, open calendar access, and event discovery for everyone at ISET.</p>
+        </div>
+        <div class="col-6 col-md-2">
+            <h6 class="fw-semibold">Explore</h6>
+            <ul class="list-unstyled mb-0">
+                <li><a href="{{ path('event_list') }}" class="eh-link">Events</a></li>
+                <li><a href="{{ path('calendar_index') }}" class="eh-link">Calendar</a></li>
+                <li><a href="{{ path('app_login') }}" class="eh-link">Login</a></li>
+            </ul>
+        </div>
+        <div class="col-6 col-md-2">
+            <h6 class="fw-semibold">Support</h6>
+            <ul class="list-unstyled mb-0">
+                <li><a href="{{ path('event_list') }}" class="eh-link">Browse events</a></li>
+                <li><a href="{{ path('calendar_index') }}" class="eh-link">Open calendar</a></li>
+            </ul>
+        </div>
+        <div class="col-12 col-md-4 text-md-end">
+            <p class="mb-1">Reach us at:</p>
+            <p class="fw-semibold mb-1">contact@iset-eventhub.example</p>
+            <p class="eh-muted mb-0">© {{ "now"|date('Y') }} ISET EventHub</p>
+        </div>
+    </div>
+</footer>

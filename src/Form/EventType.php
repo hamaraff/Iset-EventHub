@@ -10,6 +10,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\DateTimeType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
@@ -27,9 +28,15 @@ class EventType extends AbstractType
         //dates
         ->add('startDate',DateTimeType::class,[
             'widget'=>'single_text',
+            'attr' => [
+                'min' => (new \DateTimeImmutable())->format('Y-m-d\\TH:i'),
+            ],
         ])
         ->add('endDate',DateTimeType::class,[
             'widget'=>'single_text',
+            'attr' => [
+                'min' => (new \DateTimeImmutable())->format('Y-m-d\\TH:i'),
+            ],
         ])
         //type (Ouvert / Competition)
         ->add('type',ChoiceType::class,[
@@ -44,6 +51,13 @@ class EventType extends AbstractType
                 'Individuel'=>Event::MODE_INDIV,
                 'Organisation'=>Event::MODE_ORG,
             ],
+        ])
+
+        ->add('imageFile', FileType::class, [
+            'mapped' => false,
+            'required' => false,
+            'label' => 'Event image (optional)',
+            'attr' => ['accept' => 'image/*'],
         ])
 
         //Optional Fields

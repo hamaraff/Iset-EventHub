@@ -18,7 +18,7 @@
 
     <div class="card eh-card">
         <div class="card-body">
-            {{ form_start(form, { attr: { class: 'row g-3' } }) }}
+            {{ form_start(form, { attr: { class: 'row g-3' }, multipart: true }) }}
                 <div class="col-12">
                     {{ form_row(form.title, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
                 </div>
@@ -45,6 +45,9 @@
                 </div>
                 <div class="col-12 col-md-6">
                     {{ form_row(form.capacity, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
+                </div>
+                <div class="col-12 col-md-6">
+                    {{ form_row(form.imageFile, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input' } }) }}
                 </div>
                 <div class="col-12">
                     {{ form_row(form.detailedReport, { label_attr: { class: 'eh-muted' }, attr: { class: 'form-control eh-input', rows: 4 } }) }}

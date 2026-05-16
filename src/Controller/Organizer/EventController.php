@@ -1,18 +1,21 @@
 <?php
 
 namespace App\Controller\Organizer;
-use App\Repository\EventRepository;
 
-use Doctrine\ORM\EntityManagerInterface;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\Routing\Attribute\Route;
-use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Event;
 use App\Form\EventType;
+use App\Repository\EventRepository;
+use Doctrine\ORM\EntityManagerInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\File\Exception\FileException;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
+use Symfony\Component\String\Slugger\SluggerInterface;
 
-
+#[Route('/organizer/events')]
 final class EventController extends AbstractController
 {
     //List Events
@@ -35,7 +38,7 @@ final class EventController extends AbstractController
 
     //Create Event
     #[Route('/create',name:'organizer_event_new')]
-    public function new(Request $request, EntityManagerInterface $em, EventRepository $eventRepository):Response
+    public function new(Request $request, EntityManagerInterface $em, EventRepository $eventRepository, SluggerInterface $slugger):Response
     {
         $user = $this->getUser();
         $event = new Event();
@@ -50,6 +53,29 @@ final class EventController extends AbstractController
                 $this->addFlash('error', 'Date conflict with another event.');
                 return $this->redirectToRoute('organizer_event_index');
             }
+
+            /** @var UploadedFile|null $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $targetDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/events';
+                if (!is_dir($targetDirectory)) {
+                    mkdir($targetDirectory, 0755, true);
+                }
+
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $extension = $imageFile->guessExtension() ?: $imageFile->getClientOriginalExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
+
+                try {
+                    $imageFile->move($targetDirectory, $newFilename);
+                    $event->setImagePath($newFilename);
+                } catch (FileException $exception) {
+                    $this->addFlash('error', 'Unable to upload event image.');
+                    return $this->redirectToRoute('organizer_event_index');
+                }
+            }
+
             $em->persist($event);
             $em->flush();
 
@@ -69,7 +95,7 @@ final class EventController extends AbstractController
     //Edit Event
     #[Route('/{id}/edit',name:'organizer_event_edit')]
     #[IsGranted('EVENT_EDIT', subject: 'event')]
-    public function edit(Event $event , Request $request,EntityManagerInterface $em , EventRepository $eventRepository):Response
+    public function edit(Event $event , Request $request,EntityManagerInterface $em , EventRepository $eventRepository, SluggerInterface $slugger):Response
     {
         $user = $this->getUser();
         $form = $this->createForm(EventType::class,$event,[
@@ -81,6 +107,28 @@ final class EventController extends AbstractController
             if ($eventRepository->hasDateConflict($event->getStartDate(),$event->getEndDate(),$event->getId())) {
                 $this->addFlash('error', 'Date conflict with another event.');
                 return $this->redirectToRoute('organizer_event_index');
+            }
+
+            /** @var UploadedFile|null $imageFile */
+            $imageFile = $form->get('imageFile')->getData();
+            if ($imageFile) {
+                $targetDirectory = $this->getParameter('kernel.project_dir') . '/public/uploads/events';
+                if (!is_dir($targetDirectory)) {
+                    mkdir($targetDirectory, 0755, true);
+                }
+
+                $originalFilename = pathinfo($imageFile->getClientOriginalName(), PATHINFO_FILENAME);
+                $safeFilename = $slugger->slug($originalFilename);
+                $extension = $imageFile->guessExtension() ?: $imageFile->getClientOriginalExtension();
+                $newFilename = $safeFilename . '-' . uniqid() . '.' . $extension;
+
+                try {
+                    $imageFile->move($targetDirectory, $newFilename);
+                    $event->setImagePath($newFilename);
+                } catch (FileException $exception) {
+                    $this->addFlash('error', 'Unable to upload event image.');
+                    return $this->redirectToRoute('organizer_event_index');
+                }
             }
 
             // approved → reset logic

@@ -8,7 +8,7 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\TextareaType;
-use Symfony\Component\Form\Extension\Core\Type\UrlType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 
 class OrganizationType extends AbstractType
 {
@@ -30,13 +30,14 @@ class OrganizationType extends AbstractType
                     'rows' => 4,
                 ],
             ])
-            ->add('logo', UrlType::class, [
-                'label' => 'Logo URL',
+            ->add('logo', FileType::class, [
+                'label' => 'Organization logo',
                 'required' => false,
+                'mapped' => false,
                 'attr' => [
-                    'placeholder' => 'https://example.com/logo.png',
+                    'accept' => 'image/*',
                 ],
-                'help' => 'Enter the URL of your organization logo',
+                'help' => 'Upload an organization logo image file.',
             ]);
     }
 

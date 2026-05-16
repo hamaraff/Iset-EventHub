@@ -2,7 +2,9 @@
 
 namespace App\Controller\Admin;
 
+use App\Entity\Organization;
 use App\Entity\User;
+use App\Repository\OrganizationRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -68,38 +70,61 @@ final class UserController extends AbstractController
     public function create(
         Request $request, 
         EntityManagerInterface $em,
-        UserPasswordHasherInterface $passwordHasher
+        UserPasswordHasherInterface $passwordHasher,
+        OrganizationRepository $organizationRepo
     ): Response {
+        $organizations = $organizationRepo->findAll();
+
         if ($request->isMethod('POST')) {
             $email = $request->request->get('email');
             $name = $request->request->get('name');
             $password = $request->request->get('password');
             $roles = $request->request->all('roles');
-            
+            $organizationIds = $request->request->all('organization_ids');
+
             // Check if user exists
             $existing = $em->getRepository(User::class)->findOneBy(['email' => $email]);
             if ($existing) {
                 $this->addFlash('error', 'User with this email already exists.');
                 return $this->redirectToRoute('admin_user_create');
             }
-            
+
             $user = new User();
             $user->setEmail($email);
             $user->setName($name);
             $user->setRoles($roles);
-            
+
             if ($password) {
                 $hashedPassword = $passwordHasher->hashPassword($user, $password);
                 $user->setPassword($hashedPassword);
             }
-            
+
+            if (in_array('ROLE_ORGANIZER', $roles, true)) {
+                $organization = new Organization();
+                $organization->setName(sprintf('%s Organization', $name));
+                $organization->setDescription(sprintf('Automatically created organization for organizer %s.', $name));
+                $organization->addMember($user);
+                $em->persist($organization);
+            }
+
+            foreach ($organizationIds as $selectedId) {
+                if (!$selectedId) {
+                    continue;
+                }
+
+                $organization = $organizationRepo->find($selectedId);
+                if ($organization) {
+                    $user->addOrganization($organization);
+                }
+            }
+
             $em->persist($user);
             $em->flush();
-            
+
             $this->addFlash('success', 'User created successfully.');
             return $this->redirectToRoute('admin_user_index');
         }
-        
+
         return $this->render('admin/user/create.html.twig', [
             'availableRoles' => [
                 'ROLE_PARTICIPANT' => 'Participant',
@@ -107,6 +132,7 @@ final class UserController extends AbstractController
                 'ROLE_STAFF' => 'Staff',
                 'ROLE_ADMIN' => 'Administrator',
             ],
+            'organizations' => $organizations,
         ]);
     }
 }

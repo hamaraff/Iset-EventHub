@@ -72,32 +72,6 @@ final class CalendarController extends AbstractController
         ]);
     }
     
-    #[Route('/list', name: 'calendar_list', methods: ['GET'])]
-    public function list(Request $request, EventRepository $eventRepo): Response
-    {
-        $filterType = $request->query->get('type');
-        $filterStatus = Event::STATUS_APPROVED;
-        $dateFrom = $request->query->get('from');
-        $dateTo = $request->query->get('to');
-        
-        $from = $dateFrom ? new \DateTimeImmutable($dateFrom) : new \DateTimeImmutable('today');
-        $to = $dateTo ? new \DateTimeImmutable($dateTo . ' 23:59:59') : $from->modify('+365 days');
-        
-        $events = $eventRepo->findFiltered($from, $to, $filterType, $filterStatus);
-        
-        return $this->render('calendar/list.html.twig', [
-            'events' => $events,
-            'filterType' => $filterType,
-            'filterStatus' => $filterStatus,
-            'dateFrom' => $from->format('Y-m-d'),
-            'dateTo' => $to->format('Y-m-d'),
-            'eventTypes' => Event::TYPE_LABELS,
-            'eventStatuses' => [
-                Event::STATUS_APPROVED => 'Approved',
-            ],
-        ]);
-    }
-    
     private function buildCalendarGrid(\DateTimeImmutable $startOfMonth, array $events): array
     {
         $grid = [];
