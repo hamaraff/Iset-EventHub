@@ -20,13 +20,15 @@
             <div class="card eh-card h-100">
                 <div class="card-body">
                     <h2 class="h5 fw-bold mb-3">Validate QR code</h2>
-                    <form method="post" action="{{ path('staff_scan_validate') }}">
+                    <form id="validateQrForm" method="post" action="{{ path('staff_scan_validate') }}">
                         <div class="mb-3">
                             <label class="form-label eh-muted" for="qrCode">QR code value</label>
                             <input class="form-control eh-input" id="qrCode" name="qr_code" placeholder="Paste QR code text" required>
                         </div>
-                        <button class="btn btn-eh-primary" type="submit">Validate</button>
+                        <button class="btn btn-eh-primary" id="validateQrButton" type="submit">Validate</button>
                     </form>
+
+                    <div id="validationMessage" class="alert d-none mt-4 mb-0" role="status"></div>
                 </div>
             </div>
         </div>
@@ -35,16 +37,137 @@
             <div class="card eh-card h-100">
                 <div class="card-body">
                     <h2 class="h5 fw-bold mb-3">Check-in attendee</h2>
-                    <form method="post" action="{{ path('staff_scan_checkin') }}">
-                        <div class="mb-3">
-                            <label class="form-label eh-muted" for="registrationId">Registration ID</label>
-                            <input class="form-control eh-input" id="registrationId" name="registration_id" placeholder="Registration ID" required>
-                        </div>
-                        <button class="btn btn-eh-accent" type="submit">Confirm check-in</button>
+                    <div id="registrationSummary" class="rounded border eh-border bg-light p-3 mb-3">
+                        <p class="eh-muted mb-0">Validate a QR code to load attendee details.</p>
+                    </div>
+
+                    <form id="checkinForm" method="post" action="{{ path('staff_scan_checkin') }}" class="d-none">
+                        <input id="registrationId" name="registration_id" type="hidden">
+                        <button class="btn btn-eh-accent" id="checkinButton" type="submit">Confirm check-in</button>
                     </form>
+
+                    <div id="checkinMessage" class="alert d-none mt-4 mb-0" role="status"></div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<script>
+    const validateForm = document.getElementById('validateQrForm');
+    const validateButton = document.getElementById('validateQrButton');
+    const qrCodeInput = document.getElementById('qrCode');
+    const validationMessage = document.getElementById('validationMessage');
+    const registrationSummary = document.getElementById('registrationSummary');
+    const checkinForm = document.getElementById('checkinForm');
+    const checkinButton = document.getElementById('checkinButton');
+    const registrationIdInput = document.getElementById('registrationId');
+    const checkinMessage = document.getElementById('checkinMessage');
+
+    function resetAlert(element) {
+        element.className = 'alert d-none mt-4 mb-0';
+        element.textContent = '';
+    }
+
+    function showAlert(element, tone, message) {
+        element.className = `alert alert-${tone} mt-4 mb-0`;
+        element.textContent = message;
+    }
+
+    function resetCheckinPanel() {
+        registrationIdInput.value = '';
+        checkinForm.classList.add('d-none');
+        registrationSummary.innerHTML = '<p class="eh-muted mb-0">Validate a QR code to load attendee details.</p>';
+        resetAlert(checkinMessage);
+    }
+
+    function renderRegistration(data) {
+        const organization = data.organization
+            ? `<div><span class="eh-muted">Organization:</span> ${escapeHtml(data.organization)}</div>`
+            : '';
+
+        registrationSummary.innerHTML = `
+            <div class="fw-semibold fs-5 mb-2">${escapeHtml(data.participant)}</div>
+            <div><span class="eh-muted">Email:</span> ${escapeHtml(data.email)}</div>
+            <div><span class="eh-muted">Event:</span> ${escapeHtml(data.event)}</div>
+            <div><span class="eh-muted">Event window:</span> ${escapeHtml(data.start)} to ${escapeHtml(data.end)}</div>
+            <div><span class="eh-muted">Type:</span> ${escapeHtml(data.type)}</div>
+            ${organization}
+            <div><span class="eh-muted">Status:</span> ${escapeHtml(data.status)}</div>
+        `;
+    }
+
+    function escapeHtml(value) {
+        const span = document.createElement('span');
+        span.textContent = value ?? '';
+        return span.innerHTML;
+    }
+
+    validateForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        resetAlert(validationMessage);
+        resetCheckinPanel();
+        validateButton.disabled = true;
+        validateButton.textContent = 'Validating...';
+
+        try {
+            const response = await fetch(validateForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({ qr_code: qrCodeInput.value.trim() })
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.valid) {
+                showAlert(validationMessage, 'danger', data.message || 'QR validation failed.');
+                return;
+            }
+
+            registrationIdInput.value = data.registrationId;
+            renderRegistration(data);
+            checkinForm.classList.remove('d-none');
+            showAlert(validationMessage, 'success', data.message || 'QR code validated. Attendee can be checked in.');
+        } catch (error) {
+            showAlert(validationMessage, 'danger', 'Unable to validate the QR code right now.');
+        } finally {
+            validateButton.disabled = false;
+            validateButton.textContent = 'Validate';
+        }
+    });
+
+    checkinForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        resetAlert(checkinMessage);
+        checkinButton.disabled = true;
+        checkinButton.textContent = 'Checking in...';
+
+        try {
+            const response = await fetch(checkinForm.action, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-Requested-With': 'XMLHttpRequest'
+                },
+                body: new URLSearchParams({ registration_id: registrationIdInput.value })
+            });
+            const data = await response.json();
+
+            if (!response.ok || !data.success) {
+                showAlert(checkinMessage, 'danger', data.message || 'Check-in failed.');
+                return;
+            }
+
+            checkinForm.classList.add('d-none');
+            registrationSummary.innerHTML += `<div class="mt-3 fw-semibold text-success">Checked in at ${escapeHtml(data.checkedInAt)}</div>`;
+            showAlert(checkinMessage, 'success', data.message || 'Check-in successful.');
+        } catch (error) {
+            showAlert(checkinMessage, 'danger', 'Unable to check this attendee in right now.');
+        } finally {
+            checkinButton.disabled = false;
+            checkinButton.textContent = 'Confirm check-in';
+        }
+    });
+</script>
 {% endblock %}

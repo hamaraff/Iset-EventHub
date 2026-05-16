@@ -94,7 +94,7 @@ class EventRepository extends ServiceEntityRepository
 
         return $this->createQueryBuilder('e')
             ->where('e.status = :status')
-            ->andWhere('e.startDate >= :now')
+            ->andWhere('e.endDate >= :now')
             ->andWhere('e.startDate <= :future')
             ->setParameter('status', Event::STATUS_APPROVED)
             ->setParameter('now', $now)
@@ -103,6 +103,27 @@ class EventRepository extends ServiceEntityRepository
             ->setMaxResults(10)
             ->getQuery()
             ->getResult();
+    }
+
+    public function findNextScheduledEvent(?string $type = null, ?string $status = null): ?Event
+    {
+        $qb = $this->createQueryBuilder('e')
+            ->where('e.endDate >= :today')
+            ->setParameter('today', new \DateTimeImmutable('today'))
+            ->orderBy('e.startDate', 'ASC')
+            ->setMaxResults(1);
+
+        if ($type) {
+            $qb->andWhere('e.type = :type')
+               ->setParameter('type', $type);
+        }
+
+        if ($status) {
+            $qb->andWhere('e.status = :status')
+               ->setParameter('status', $status);
+        }
+
+        return $qb->getQuery()->getOneOrNullResult();
     }
 
     public function findFiltered(

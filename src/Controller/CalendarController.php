@@ -15,10 +15,20 @@ final class CalendarController extends AbstractController
     #[Route('', name: 'calendar_index', methods: ['GET'])]
     public function index(Request $request, EventRepository $eventRepo): Response
     {
-        $year = (int) $request->query->get('year', date('Y'));
-        $month = (int) $request->query->get('month', date('n'));
         $filterType = $request->query->get('type');
-        $filterStatus = $request->query->get('status');
+        $filterStatus = Event::STATUS_APPROVED;
+        $requestedYear = $request->query->get('year');
+        $requestedMonth = $request->query->get('month');
+
+        if ($requestedYear === null || $requestedMonth === null) {
+            $nextEvent = $eventRepo->findNextScheduledEvent($filterType, $filterStatus);
+            $anchorDate = $nextEvent?->getStartDate() ?? new \DateTimeImmutable('today');
+            $year = (int) $anchorDate->format('Y');
+            $month = (int) $anchorDate->format('n');
+        } else {
+            $year = (int) $requestedYear;
+            $month = (int) $requestedMonth;
+        }
         
         // Normalize month/year
         if ($month < 1) {
@@ -49,16 +59,15 @@ final class CalendarController extends AbstractController
             'filterType' => $filterType,
             'filterStatus' => $filterStatus,
             'upcoming' => $upcoming,
+            'visibleFrom' => $startOfMonth->format('Y-m-d'),
+            'visibleTo' => $endOfMonth->format('Y-m-d'),
             'prevMonth' => $month - 1 < 1 ? 12 : $month - 1,
             'prevYear' => $month - 1 < 1 ? $year - 1 : $year,
             'nextMonth' => $month + 1 > 12 ? 1 : $month + 1,
             'nextYear' => $month + 1 > 12 ? $year + 1 : $year,
             'eventTypes' => Event::TYPE_LABELS,
             'eventStatuses' => [
-                Event::STATUS_DRAFT => 'Draft',
-                Event::STATUS_PENDING => 'Pending',
                 Event::STATUS_APPROVED => 'Approved',
-                Event::STATUS_REFUSED => 'Refused',
             ],
         ]);
     }
@@ -67,12 +76,12 @@ final class CalendarController extends AbstractController
     public function list(Request $request, EventRepository $eventRepo): Response
     {
         $filterType = $request->query->get('type');
-        $filterStatus = $request->query->get('status', Event::STATUS_APPROVED);
+        $filterStatus = Event::STATUS_APPROVED;
         $dateFrom = $request->query->get('from');
         $dateTo = $request->query->get('to');
         
         $from = $dateFrom ? new \DateTimeImmutable($dateFrom) : new \DateTimeImmutable('today');
-        $to = $dateTo ? new \DateTimeImmutable($dateTo . ' 23:59:59') : $from->modify('+90 days');
+        $to = $dateTo ? new \DateTimeImmutable($dateTo . ' 23:59:59') : $from->modify('+365 days');
         
         $events = $eventRepo->findFiltered($from, $to, $filterType, $filterStatus);
         
@@ -84,10 +93,7 @@ final class CalendarController extends AbstractController
             'dateTo' => $to->format('Y-m-d'),
             'eventTypes' => Event::TYPE_LABELS,
             'eventStatuses' => [
-                Event::STATUS_DRAFT => 'Draft',
-                Event::STATUS_PENDING => 'Pending',
                 Event::STATUS_APPROVED => 'Approved',
-                Event::STATUS_REFUSED => 'Refused',
             ],
         ]);
     }

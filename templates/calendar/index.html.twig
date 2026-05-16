@@ -8,12 +8,12 @@
         <div>
             <span class="badge eh-badge text-uppercase">Calendar</span>
             <h1 class="display-6 fw-bold mt-2">{{ monthName }} {{ year }}</h1>
-            <p class="eh-muted mb-0">Browse events by day and filter by type or status.</p>
+            <p class="eh-muted mb-0">Browse approved events by day and filter by type.</p>
         </div>
         <div class="d-flex gap-2">
             <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: prevYear, month: prevMonth, type: filterType, status: filterStatus }) }}">Prev</a>
             <a class="btn btn-outline-secondary" href="{{ path('calendar_index', { year: nextYear, month: nextMonth, type: filterType, status: filterStatus }) }}">Next</a>
-            <a class="btn btn-eh-primary" href="{{ path('calendar_list', { type: filterType, status: filterStatus }) }}">List view</a>
+            <a class="btn btn-eh-primary" href="{{ path('calendar_list', { from: visibleFrom, to: visibleTo, type: filterType, status: filterStatus }) }}">List view</a>
         </div>
     </div>
 
@@ -29,16 +29,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-12 col-md-4">
-            <label class="form-label eh-muted">Status</label>
-            <select name="status" class="form-select eh-input">
-                <option value="">All statuses</option>
-                {% for key, label in eventStatuses %}
-                    <option value="{{ key }}" {{ key == filterStatus ? 'selected' : '' }}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-12 col-md-4 d-flex gap-2">
+        <div class="col-12 col-md-8 d-flex gap-2">
             <button class="btn btn-eh-primary w-100" type="submit">Apply filters</button>
             <a class="btn btn-outline-secondary w-100" href="{{ path('calendar_index') }}">Reset</a>
         </div>

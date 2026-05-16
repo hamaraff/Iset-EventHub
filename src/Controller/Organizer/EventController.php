@@ -55,7 +55,10 @@ final class EventController extends AbstractController
 
             $this->addFlash('success', 'Event created.');
 
-            return $this->redirectToRoute('organizer_event_index');
+            return $this->redirectToRoute('calendar_index', [
+                'year' => (int) $event->getStartDate()->format('Y'),
+                'month' => (int) $event->getStartDate()->format('n'),
+            ]);
         }
         
         return $this->render('organizer/event/new.html.twig', [

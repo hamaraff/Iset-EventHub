@@ -41,19 +41,6 @@ final class QrScanController extends AbstractController
         }
 
         $event = $registration->getEvent();
-        $now = new \DateTimeImmutable();
-
-        // Check if event is currently active
-        if ($now < $event->getStartDate() || $now > $event->getEndDate()) {
-            return $this->json([
-                'valid' => false, 
-                'message' => 'Event not active at this time',
-                'event' => $event->getTitle(),
-                'start' => $event->getStartDate()->format('Y-m-d H:i'),
-                'end' => $event->getEndDate()->format('Y-m-d H:i')
-            ], 400);
-        }
-
         // Check if already checked in
         if ($registration->getStatus() === Registration::STATUS_CHECKED_IN) {
             return $this->json([
@@ -77,10 +64,14 @@ final class QrScanController extends AbstractController
 
         return $this->json([
             'valid' => true,
+            'canCheckIn' => true,
+            'message' => 'QR code validated. Attendee can be checked in.',
             'registrationId' => $registration->getId(),
             'participant' => $registration->getUser()->getName(),
             'email' => $registration->getUser()->getEmail(),
             'event' => $event->getTitle(),
+            'start' => $event->getStartDate()->format('Y-m-d H:i'),
+            'end' => $event->getEndDate()->format('Y-m-d H:i'),
             'type' => $registration->getType(),
             'organization' => $registration->getOrganization() ? $registration->getOrganization()->getName() : null,
             'status' => $registration->getStatus()
@@ -103,6 +94,8 @@ final class QrScanController extends AbstractController
             return $this->json(['success' => false, 'message' => 'Registration not found'], 404);
         }
 
+        $event = $registration->getEvent();
+
         // Verify registration is valid for check-in
         if ($registration->getStatus() === Registration::STATUS_CHECKED_IN) {
             return $this->json([
@@ -124,7 +117,7 @@ final class QrScanController extends AbstractController
             'success' => true,
             'message' => 'Check-in successful',
             'participant' => $registration->getUser()->getName(),
-            'event' => $registration->getEvent()->getTitle(),
+            'event' => $event->getTitle(),
             'checkedInAt' => $registration->getCheckedInAt()->format('Y-m-d H:i:s')
         ]);
     }

@@ -155,11 +155,13 @@
                     <li class="nav-item"><a class="nav-link eh-link" href="{{ path('event_list') }}">Events</a></li>
                     <li class="nav-item"><a class="nav-link eh-link" href="{{ path('calendar_index') }}">Calendar</a></li>
                     {% if app.user %}
-                        <li class="nav-item"><a class="nav-link eh-link" href="{{ path('registration_index') }}">My registrations</a></li>
                         {% if is_granted('ROLE_ORGANIZER') %}
                             <li class="nav-item"><a class="nav-link eh-link" href="{{ path('organizer_event_index') }}">My events</a></li>
-                            <li class="nav-item"><a class="nav-link eh-link" href="{{ path('organizer_organization_index') }}">Organizations</a></li>
                         {% endif %}
+                        {% if not is_granted('ROLE_ADMIN') and not is_granted('ROLE_STAFF') %}
+                            <li class="nav-item"><a class="nav-link eh-link" href="{{ path('registration_index') }}">My registrations</a></li>
+                        {% endif %}
+
                         {% if is_granted('ROLE_STAFF') %}
                             <li class="nav-item"><a class="nav-link eh-link" href="{{ path('staff_scan') }}">Scan</a></li>
                         {% endif %}
